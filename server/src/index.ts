@@ -48,9 +48,11 @@ app.use('/api/interacciones', interaccionRoutes);
 const clientDistPath = path.join(__dirname, '../../client/dist');
 app.use(express.static(clientDistPath));
 
-app.get('/:path*', (req: any, res: any, next: any) => {
-  // If it's an API route, don't serve index.html
-  if (req.url.startsWith('/api') || req.url.startsWith('/auth')) return next();
+app.use((req: any, res: any) => {
+  // If it's an API route that reached here, it's a 404
+  if (req.url.startsWith('/api') || req.url.startsWith('/auth')) {
+    return res.status(404).json({ message: 'Endpoint no encontrado en Stat-IQ' });
+  }
   res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
