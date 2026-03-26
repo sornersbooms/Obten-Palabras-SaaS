@@ -48,7 +48,7 @@ app.use('/api/interacciones', interaccionRoutes);
 const clientDistPath = path.join(__dirname, '../../client/dist');
 app.use(express.static(clientDistPath));
 
-app.get('(.*)', (req: any, res: any, next: any) => {
+app.get('/:path*', (req: any, res: any, next: any) => {
   // If it's an API route, don't serve index.html
   if (req.url.startsWith('/api') || req.url.startsWith('/auth')) return next();
   res.sendFile(path.join(clientDistPath, 'index.html'));
