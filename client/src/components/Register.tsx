@@ -3,8 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShieldCheck, Mail, Lock, User, Briefcase, ChevronRight, Loader2, ArrowLeft, Sparkles } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
-// 1. STYLES & INTERFACE COMPONENTS (Moved to top to avoid Hoisting/TDZ issues)
-const inputStyle: any = {
+// 1. INTERFACES (Added to eliminate TypeScript "any" errors)
+interface RoleButtonProps {
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  color: string;
+}
+
+interface FormInputProps {
+  icon: React.ReactNode;
+  placeholder: string;
+  type: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+// 2. STYLES & INTERFACE COMPONENTS
+const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '14px 16px 14px 52px',
   border: '1px solid rgba(255,255,255,0.1)',
@@ -16,7 +33,7 @@ const inputStyle: any = {
   transition: 'border-color 0.3s ease'
 };
 
-const RoleButton = ({ title, desc, icon, onClick, color }: any) => (
+const RoleButton: React.FC<RoleButtonProps> = ({ title, desc, icon, onClick, color }) => (
   <motion.button 
     whileHover={{ scale: 1.03, borderColor: color, background: 'rgba(255,255,255,0.04)' }}
     onClick={onClick} 
@@ -33,7 +50,7 @@ const RoleButton = ({ title, desc, icon, onClick, color }: any) => (
   </motion.button>
 );
 
-const FormInput = ({ icon, placeholder, type, value, onChange }: any) => (
+const FormInput: React.FC<FormInputProps> = ({ icon, placeholder, type, value, onChange }) => (
   <div style={{ position: 'relative' }}>
     <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
       {icon}
@@ -43,13 +60,13 @@ const FormInput = ({ icon, placeholder, type, value, onChange }: any) => (
       placeholder={placeholder} 
       required 
       value={value} 
-      onChange={e => onChange(e.target.value)} 
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)} 
       style={inputStyle} 
     />
   </div>
 );
 
-// 2. MAIN REGISTER COMPONENT
+// 3. MAIN REGISTER COMPONENT
 const Register: React.FC = () => {
   const [role, setRole] = useState<'agent' | 'supervisor' | null>(null);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', companyName: '', tenantSlug: '' });
@@ -165,19 +182,19 @@ const Register: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <FormInput icon={<User size={20} />} placeholder="Nombre completo" type="text" value={formData.name} onChange={v => setFormData(prev => ({ ...prev, name: v }))} />
-                <FormInput icon={<Mail size={20} />} placeholder="Email corporativo" type="email" value={formData.email} onChange={v => setFormData(prev => ({ ...prev, email: v }))} />
-                <FormInput icon={<Lock size={20} />} placeholder="Contraseña de acceso" type="password" value={formData.password} onChange={v => setFormData(prev => ({ ...prev, password: v }))} />
+                <FormInput icon={<User size={20} />} placeholder="Nombre completo" type="text" value={formData.name} onChange={(v: string) => setFormData(prev => ({ ...prev, name: v }))} />
+                <FormInput icon={<Mail size={20} />} placeholder="Email corporativo" type="email" value={formData.email} onChange={(v: string) => setFormData(prev => ({ ...prev, email: v }))} />
+                <FormInput icon={<Lock size={20} />} placeholder="Contraseña de acceso" type="password" value={formData.password} onChange={(v: string) => setFormData(prev => ({ ...prev, password: v }))} />
 
                 {role === 'supervisor' ? (
-                  <FormInput icon={<Briefcase size={20} />} placeholder="Nombre de tu organización" type="text" value={formData.companyName} onChange={v => setFormData(prev => ({ ...prev, companyName: v }))} />
+                  <FormInput icon={<Briefcase size={20} />} placeholder="Nombre de tu organización" type="text" value={formData.companyName} onChange={(v: string) => setFormData(prev => ({ ...prev, companyName: v }))} />
                 ) : (
                   <div style={{ position: 'relative' }}>
                     <Briefcase size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <select 
                       required 
                       value={formData.tenantSlug} 
-                      onChange={e => setFormData({...formData, tenantSlug: e.target.value})} 
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData(prev => ({ ...prev, tenantSlug: e.target.value }))} 
                       style={{ ...inputStyle, paddingLeft: '52px', appearance: 'none', cursor: 'pointer' }}
                     >
                       <option value="">Selecciona tu empresa...</option>
