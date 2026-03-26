@@ -2,10 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { interaccionRoutes } from './routes/interaccion.routes.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { authPoliceman } from './middleware/auth.middleware.js';
 import { Tenant } from './models/Tenant.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -39,15 +44,21 @@ app.post('/admin/tenants', async (req, res) => {
 app.use('/api', authPoliceman);
 app.use('/api/interacciones', interaccionRoutes);
 
+// SERVE FRONTEND (Production)
+const clientDistPath = path.join(__dirname, '../../client/dist');
+app.use(express.static(clientDistPath));
+
+app.get('*', (req: any, res: any, next: any) => {
+  // If it's an API route, don't serve index.html
+  if (req.url.startsWith('/api') || req.url.startsWith('/auth')) return next();
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/obtenpalabras';
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ Conectado a MongoDB SaaS'))
   .catch((err) => console.error('❌ Error conectando a MongoDB:', err));
-
-app.get('/', (req, res) => {
-  res.send('API SaaS Multi-tenant Stat-IQ con Auth JWT - Activa y Segura 🟢');
-});
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor SaaSAuth corriendo en http://localhost:${PORT}`);
