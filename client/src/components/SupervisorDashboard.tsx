@@ -15,8 +15,9 @@ const SupervisorDashboard: React.FC = () => {
   const initialTenant = authService.getTenant();
   const [tenant, setTenant] = useState(initialTenant);
   
-  const [questions] = useState<string[]>(["", "", "", ""]);
-  const [aiPrompt] = useState("");
+  const [questions, setQuestions] = useState<string[]>(["", "", "", ""]);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [savingConfig, setSavingConfig] = useState(false);
 
   useEffect(() => {
     if (tenant?.config) {
