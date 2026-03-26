@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, Users, ShieldCheck, LogOut, Radio, Loader2, 
-  Settings, Brain
+  Settings
 } from 'lucide-react';
 import { authService } from '../services/auth.service';
 
@@ -17,7 +17,6 @@ const SupervisorDashboard: React.FC = () => {
   
   const [questions, setQuestions] = useState<string[]>(["", "", "", ""]);
   const [aiPrompt, setAiPrompt] = useState("");
-  const [savingConfig, setSavingConfig] = useState(false);
 
   useEffect(() => {
     if (tenant?.config) {
@@ -37,26 +36,7 @@ const SupervisorDashboard: React.FC = () => {
     finally { setLoading(false); }
   };
 
-  const saveConfig = async () => {
-    setSavingConfig(true);
-    try {
-      const resp = await fetch('/auth/tenant/config', {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authService.getToken()}` 
-        },
-        body: JSON.stringify({ scriptQuestions: questions, aiPrompt })
-      });
-      const data = await resp.json();
-      if (resp.ok) {
-        authService.setTenant(data);
-        setTenant(data);
-        setShowSettings(false);
-      }
-    } catch (err) { console.error(err); } 
-    finally { setSavingConfig(false); }
-  };
+  /* saveConfig removed for build fix */
 
   useEffect(() => {
     fetchActiveSessions();
@@ -224,12 +204,6 @@ const AgentLiveNode = ({ session, activeQuestions }: any) => {
   );
 };
 
-const ChartBadge = () => (
-  <div style={{ height: '12px', display: 'flex', gap: '2px', alignItems: 'flex-end' }}>
-    <div style={{ width: '3px', height: '60%', background: 'var(--accent-primary)' }} />
-    <div style={{ width: '3px', height: '90%', background: 'var(--accent-primary)' }} />
-    <div style={{ width: '3px', height: '40%', background: 'var(--accent-primary)' }} />
-  </div>
-);
+/* ChartBadge removed for build fix */
 
 export default SupervisorDashboard;
