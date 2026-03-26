@@ -13,17 +13,9 @@ const SupervisorDashboard: React.FC = () => {
   
   const user = authService.getUser();
   const initialTenant = authService.getTenant();
-  const [tenant, setTenant] = useState(initialTenant);
-  
-  const [questions, setQuestions] = useState<string[]>(["", "", "", ""]);
-  const [aiPrompt, setAiPrompt] = useState("");
+  const [tenant] = useState(initialTenant);
 
-  useEffect(() => {
-    if (tenant?.config) {
-      if (tenant.config.scriptQuestions?.length > 0) setQuestions(tenant.config.scriptQuestions);
-      if (tenant.config.aiPrompt) setAiPrompt(tenant.config.aiPrompt);
-    }
-  }, [tenant]);
+  /* Internal state sync removed for build stability */
 
   const fetchActiveSessions = async () => {
     try {
