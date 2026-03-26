@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, Users, ShieldCheck, LogOut, Radio, Loader2, 
-  Search, UserCheck, ClipboardCheck, Brain, Settings, Save, MessageSquare, Sparkles, Plus, Trash2
+  Settings, Brain
 } from 'lucide-react';
 import { authService } from '../services/auth.service';
 
@@ -15,9 +15,8 @@ const SupervisorDashboard: React.FC = () => {
   const initialTenant = authService.getTenant();
   const [tenant, setTenant] = useState(initialTenant);
   
-  const [questions, setQuestions] = useState<string[]>(["", "", "", ""]);
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [savingConfig, setSavingConfig] = useState(false);
+  const [questions] = useState<string[]>(["", "", "", ""]);
+  const [aiPrompt] = useState("");
 
   useEffect(() => {
     if (tenant?.config) {
