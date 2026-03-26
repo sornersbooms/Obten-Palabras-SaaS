@@ -3,6 +3,53 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShieldCheck, Mail, Lock, User, Briefcase, ChevronRight, Loader2, ArrowLeft, Sparkles } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
+// 1. STYLES & INTERFACE COMPONENTS (Moved to top to avoid Hoisting/TDZ issues)
+const inputStyle: any = {
+  width: '100%',
+  padding: '14px 16px 14px 52px',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: '14px',
+  background: 'rgba(255,255,255,0.03)',
+  color: '#fff',
+  fontSize: '0.95rem',
+  outline: 'none',
+  transition: 'border-color 0.3s ease'
+};
+
+const RoleButton = ({ title, desc, icon, onClick, color }: any) => (
+  <motion.button 
+    whileHover={{ scale: 1.03, borderColor: color, background: 'rgba(255,255,255,0.04)' }}
+    onClick={onClick} 
+    style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', width: '100%', padding: '1.5rem', textAlign: 'left', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', cursor: 'pointer', transition: 'border-color 0.3s ease' }}
+  >
+    <div style={{ padding: '14px', background: color.startsWith('var') ? `rgba(99, 102, 241, 0.1)` : `${color}1A`, borderRadius: '16px', border: color.startsWith('var') ? `1px solid rgba(99, 102, 241, 0.2)` : `1px solid ${color}33` }}>
+      {icon}
+    </div>
+    <div style={{ flex: 1 }}>
+      <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff', marginBottom: '4px' }}>{title}</div>
+      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.3 }}>{desc}</div>
+    </div>
+    <ChevronRight size={22} className="text-muted" />
+  </motion.button>
+);
+
+const FormInput = ({ icon, placeholder, type, value, onChange }: any) => (
+  <div style={{ position: 'relative' }}>
+    <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+      {icon}
+    </div>
+    <input 
+      type={type} 
+      placeholder={placeholder} 
+      required 
+      value={value} 
+      onChange={e => onChange(e.target.value)} 
+      style={inputStyle} 
+    />
+  </div>
+);
+
+// 2. MAIN REGISTER COMPONENT
 const Register: React.FC = () => {
   const [role, setRole] = useState<'agent' | 'supervisor' | null>(null);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', companyName: '', tenantSlug: '' });
@@ -33,7 +80,8 @@ const Register: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      const data = await resp.json();
+      
+      const data = await resp.json().catch(() => ({ error: 'Error del servidor central' }));
       if (!resp.ok) throw new Error(data.error || 'Error al registrarse');
       
       alert(data.message);
@@ -156,51 +204,6 @@ const Register: React.FC = () => {
       </motion.div>
     </div>
   );
-};
-
-const RoleButton = ({ title, desc, icon, onClick, color }: any) => (
-  <motion.button 
-    whileHover={{ scale: 1.03, borderColor: color, background: 'rgba(255,255,255,0.04)' }}
-    onClick={onClick} 
-    style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', width: '100%', padding: '1.5rem', textAlign: 'left', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', cursor: 'pointer', transition: 'border-color 0.3s ease' }}
-  >
-    <div style={{ padding: '14px', background: color.startsWith('var') ? `rgba(99, 102, 241, 0.1)` : `${color}1A`, borderRadius: '16px', border: color.startsWith('var') ? `1px solid rgba(99, 102, 241, 0.2)` : `1px solid ${color}33` }}>
-      {icon}
-    </div>
-    <div style={{ flex: 1 }}>
-      <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff', marginBottom: '4px' }}>{title}</div>
-      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.3 }}>{desc}</div>
-    </div>
-    <ChevronRight size={22} className="text-muted" />
-  </motion.button>
-);
-
-const FormInput = ({ icon, placeholder, type, value, onChange }: any) => (
-  <div style={{ position: 'relative' }}>
-    <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-      {icon}
-    </div>
-    <input 
-      type={type} 
-      placeholder={placeholder} 
-      required 
-      value={value} 
-      onChange={e => onChange(e.target.value)} 
-      style={inputStyle} 
-    />
-  </div>
-);
-
-const inputStyle = {
-  width: '100%',
-  padding: '14px 16px 14px 52px',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '14px',
-  background: 'rgba(255,255,255,0.03)',
-  color: '#fff',
-  fontSize: '0.95rem',
-  outline: 'none',
-  transition: 'border-color 0.3s ease'
 };
 
 export default Register;
