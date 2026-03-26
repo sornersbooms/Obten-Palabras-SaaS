@@ -165,12 +165,12 @@ const Register: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <FormInput icon={<User size={20} />} placeholder="Nombre completo" type="text" value={formData.name} onChange={v => setFormData({...formData, name: v})} />
-                <FormInput icon={<Mail size={20} />} placeholder="Email corporativo" type="email" value={formData.email} onChange={v => setFormData({...formData, email: v})} />
-                <FormInput icon={<Lock size={20} />} placeholder="Contraseña de acceso" type="password" value={formData.password} onChange={v => setFormData({...formData, password: v})} />
+                <FormInput icon={<User size={20} />} placeholder="Nombre completo" type="text" value={formData.name} onChange={v => setFormData(prev => ({ ...prev, name: v }))} />
+                <FormInput icon={<Mail size={20} />} placeholder="Email corporativo" type="email" value={formData.email} onChange={v => setFormData(prev => ({ ...prev, email: v }))} />
+                <FormInput icon={<Lock size={20} />} placeholder="Contraseña de acceso" type="password" value={formData.password} onChange={v => setFormData(prev => ({ ...prev, password: v }))} />
 
                 {role === 'supervisor' ? (
-                  <FormInput icon={<Briefcase size={20} />} placeholder="Nombre de tu organización" type="text" value={formData.companyName} onChange={v => setFormData({...formData, companyName: v})} />
+                  <FormInput icon={<Briefcase size={20} />} placeholder="Nombre de tu organización" type="text" value={formData.companyName} onChange={v => setFormData(prev => ({ ...prev, companyName: v }))} />
                 ) : (
                   <div style={{ position: 'relative' }}>
                     <Briefcase size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
