@@ -56,7 +56,7 @@ app.use((req: any, res: any) => {
   res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
-const MONGODB_URI = process.env.MONGODB_URL || process.env.MONGODB_URI || 'mongodb://localhost:27017/obtenpalabras';
+const MONGODB_URI = process.env.MONGODB_URL || process.env.MONGO_URL || process.env.MONGODB_URI || 'mongodb://localhost:27017/obtenpalabras';
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ Conectado a MongoDB SaaS'))
