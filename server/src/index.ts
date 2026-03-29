@@ -48,12 +48,19 @@ app.use('/api/interacciones', interaccionRoutes);
 const clientDistPath = path.join(__dirname, '../../client/dist');
 app.use(express.static(clientDistPath));
 
+import fs from 'fs';
+
 app.use((req: any, res: any) => {
   // If it's an API route that reached here, it's a 404
   if (req.url.startsWith('/api') || req.url.startsWith('/auth')) {
     return res.status(404).json({ message: 'Endpoint no encontrado en Stat-IQ' });
   }
-  res.sendFile(path.join(clientDistPath, 'index.html'));
+  const indexPath = path.join(clientDistPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Servidor en modo desarrollo. Ejecute npm run build en client para generar los archivos estáticos.');
+  }
 });
 
 const MONGODB_URI = process.env.MONGODB_URL || process.env.MONGO_URL || process.env.MONGODB_URI || 'mongodb://localhost:27017/obtenpalabras';

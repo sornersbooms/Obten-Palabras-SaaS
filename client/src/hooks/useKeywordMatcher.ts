@@ -42,8 +42,6 @@ export const useKeywordMatcher = (initialQuestions: string[]) => {
   const lastDetectionTimeRef = useRef<Record<number, number>>({});
   const DETECTION_COOLDOWN_MS = 3500; // 3.5 seconds cooldown per question
 
-  const normalizedPatterns = initialQuestions.map(p => normalize(p));
-
   const finalizeBlock = useCallback(() => {
     const cid = currentBlockId;
     const qs = JSON.parse(JSON.stringify(currentBlockQuestions));
@@ -74,8 +72,12 @@ export const useKeywordMatcher = (initialQuestions: string[]) => {
     const now = Date.now();
 
     let detectedIndex = -1;
-    normalizedPatterns.forEach((pattern, index) => {
-      if (cleanText.includes(pattern) || fuzzyMatch(cleanText, pattern)) {
+    initialQuestions.forEach((originalPattern, index) => {
+      // SOPORTE PARA SEPARACIÓN POR COMA (Alternativas para la misma pregunta)
+      const subPatterns = originalPattern.split(',').map(p => normalize(p));
+      const match = subPatterns.some(p => cleanText.includes(p) || fuzzyMatch(cleanText, p));
+      
+      if (match) {
         detectedIndex = index;
       }
     });
@@ -90,8 +92,12 @@ export const useKeywordMatcher = (initialQuestions: string[]) => {
       // Update cooldown immediately
       lastDetectionTimeRef.current[qId] = now;
 
-      // TRANSITION CHECK
-      if (qId <= highestQInBlock.current) {
+      // TRANSITION CHECK: New Client Trigger
+      // Trigger if it's the 1st question and something was already said, 
+      // OR if we go backwards in the script.
+      const shouldTriggerNewClient = (qId === 1 && highestQInBlock.current > 0) || (qId <= highestQInBlock.current);
+
+      if (shouldTriggerNewClient) {
         // New Client
         finalizeBlock();
         highestQInBlock.current = qId;
@@ -119,7 +125,7 @@ export const useKeywordMatcher = (initialQuestions: string[]) => {
         ));
       }
     }
-  }, [normalizedPatterns, initialQuestions, finalizeBlock]);
+  }, [initialQuestions, finalizeBlock]);
 
   const resetAll = useCallback(() => {
     setGlobalQuestionStats(new Array(initialQuestions.length).fill(0));
