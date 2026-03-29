@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { interaccionRoutes } from './routes/interaccion.routes.js';
 import { authRoutes } from './routes/auth.routes.js';
@@ -20,10 +21,15 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// PUBLIC ROUTES: Login & Registration
+// Log de diagnóstico al iniciar
+console.log('--- DIAGNÓSTICO DE RUTAS ---');
+console.log('__dirname:', __dirname);
+console.log('CWD:', process.cwd());
+
+// Rutas API
+app.get('/health', (req, res) => res.json({ status: 'ok', server: 'SaaSAuth' }));
 app.use('/auth', authRoutes);
 
-// ADMIN/TESTING ROUTE
 app.post('/admin/tenants', async (req, res) => {
   try {
     const { name, slug } = req.body;
@@ -40,26 +46,39 @@ app.post('/admin/tenants', async (req, res) => {
   }
 });
 
-// POLICE CHECK: ALL /API ROUTES ARE NOW PROTECTED BY JWT
 app.use('/api', authPoliceman);
 app.use('/api/interacciones', interaccionRoutes);
 
-// SERVE FRONTEND (Production)
-const clientDistPath = path.join(__dirname, '../../client/dist');
-app.use(express.static(clientDistPath));
+// SERVIR FRONTEND: Lógica más robusta para producción
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
+console.log('Buscando archivos estáticos en:', clientDistPath);
 
-import fs from 'fs';
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+} else {
+  console.warn('⚠️ Carpeta client/dist no encontrada. Sirviendo modo desarrollo o sin estáticos.');
+}
 
 app.use((req: any, res: any) => {
-  // If it's an API route that reached here, it's a 404
   if (req.url.startsWith('/api') || req.url.startsWith('/auth')) {
-    return res.status(404).json({ message: 'Endpoint no encontrado en Stat-IQ' });
+    return res.status(404).json({ message: 'Endpoint no encontrado' });
   }
+
   const indexPath = path.join(clientDistPath, 'index.html');
+  console.log(`[ROUTE]: ${req.url} -> checking index at ${indexPath}`);
+
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(404).send('Servidor en modo desarrollo. Ejecute npm run build en client para generar los archivos estáticos.');
+    res.status(404).send(`
+      <html>
+        <body style="background:#000; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif;">
+          <h2>⚠️ ERROR DE DESPLIEGUE</h2>
+          <p>No se encontró el archivo 'index.html' en la ruta: <code>${indexPath}</code></p>
+          <p>¿Ejecutaste <b>npm run build</b> en la carpeta client?</p>
+        </body>
+      </html>
+    `);
   }
 });
 
@@ -70,5 +89,5 @@ mongoose.connect(MONGODB_URI)
   .catch((err) => console.error('❌ Error conectando a MongoDB:', err));
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor SaaSAuth corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor SaaSAuth corriendo en el puerto ${PORT}`);
 });
