@@ -383,29 +383,49 @@ const AgentLiveNode = ({ session, activeQuestions }: any) => {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '5px' }}>
           {activeQuestions.map((q: string, idx: number) => {
             const count = session.combinedStats?.[q] || session.questionStats?.[q] || 0;
+            const itemAdherence = leads > 0 ? Math.min(Math.round((count / leads) * 100), 100) : 0;
+            
             return (
               <div key={idx} style={{ 
                 background: count > 0 ? 'rgba(0, 242, 255, 0.1)' : 'rgba(255,255,255,0.03)', 
-                padding: '6px 12px', 
-                borderRadius: '8px', 
+                padding: '8px 14px', 
+                borderRadius: '10px', 
                 fontSize: '0.65rem', 
                 display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px', 
-                border: count > 0 ? '1px solid rgba(0, 242, 255, 0.3)' : '1px solid rgba(255,255,255,0.05)'
+                flexDirection: 'column',
+                gap: '5px',
+                border: count > 0 ? '1px solid rgba(0, 242, 255, 0.3)' : '1px solid rgba(255,255,255,0.05)',
+                minWidth: '140px'
               }}>
-                <span style={{ color: count > 0 ? '#fff' : 'var(--text-secondary)' }}>
-                  {q.length > 30 ? q.substring(0, 30) + '...' : q}
-                </span>
-                <span style={{ 
-                  background: count > 0 ? 'var(--accent-primary)' : '#333', 
-                  color: count > 0 ? '#000' : '#888', 
-                  padding: '2px 6px', 
-                  borderRadius: '10px', 
-                  fontWeight: 900 
-                }}>
-                  {count}
-                </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ color: count > 0 ? '#fff' : 'var(--text-secondary)', fontWeight: 600 }}>
+                    {q.length > 25 ? q.substring(0, 25) + '...' : q}
+                  </span>
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <span style={{ 
+                      background: count > 0 ? 'var(--accent-primary)' : '#333', 
+                      color: count > 0 ? '#000' : '#888', 
+                      padding: '2px 6px', 
+                      borderRadius: '5px', 
+                      fontWeight: 900 
+                    }}>
+                      {count}
+                    </span>
+                  </div>
+                </div>
+                {/* BARRA DE PROGRESO INDIVIDUAL */}
+                <div style={{ width: '100%', height: '3px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ 
+                    width: `${itemAdherence}%`, 
+                    height: '100%', 
+                    background: itemAdherence > 80 ? '#10b981' : (itemAdherence > 40 ? '#f59e0b' : '#ef4444'),
+                    transition: 'width 1s ease-in-out'
+                  }} />
+                </div>
+                <div style={{ fontSize: '0.55rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
+                  <span>ADHERENCIA:</span>
+                  <span style={{ color: itemAdherence > 0 ? '#fff' : 'inherit' }}>{itemAdherence}%</span>
+                </div>
               </div>
             );
           })}
