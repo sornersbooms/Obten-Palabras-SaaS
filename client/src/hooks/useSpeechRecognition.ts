@@ -25,6 +25,25 @@ export const useSpeechRecognition = (onResult?: (result: SpeechRecognitionResult
       return;
     }
 
+    // [AUDIO OPTIMIZATION] Prime the browser audio pipeline with pro constraints
+    const primeAudio = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+        // Just opening it once with these constraints often "locks" the hardware 
+        // processing for subsequent SpeechRecognition calls in the same session.
+        setTimeout(() => stream.getTracks().forEach(t => t.stop()), 1000);
+      } catch (e) {
+        console.warn("Audio Priming failed:", e);
+      }
+    };
+    primeAudio();
+
     const reco = new SpeechRecognition();
     reco.continuous = true;
     reco.interimResults = true;
